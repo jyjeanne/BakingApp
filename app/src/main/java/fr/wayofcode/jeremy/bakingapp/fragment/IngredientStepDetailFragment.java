@@ -173,11 +173,9 @@ public class IngredientStepDetailFragment extends Fragment
     String videoUrl = mSteps.get(index).getVideoUrl();
     String thumbNailUrl = mSteps.get(index).getThumbnailUrl();
     if (!TextUtils.isEmpty(videoUrl)) {
-      restExoPlayer(0, false);
       initializePlayer(Uri.parse(videoUrl));
       initializeMediaSession();
     } else if (!thumbNailUrl.isEmpty()) {
-      restExoPlayer(0, false);
       initializePlayer(Uri.parse(thumbNailUrl));
       initializeMediaSession();
     } else {
@@ -203,6 +201,9 @@ public class IngredientStepDetailFragment extends Fragment
    * @param mediaUri The URI of the sample to play.
    */
   private void initializePlayer(Uri mediaUri) {
+    if(mExoPlayer!=null) {
+      mExoPlayer.stop();
+    }
     mExoPlayer = null;
 
 
@@ -247,16 +248,12 @@ public class IngredientStepDetailFragment extends Fragment
   public void onDestroy() {
     super.onDestroy();
     releasePlayer();
-    //mediaSession.setActive(false);
   }
 
   @Override
   public void onPause() {
     super.onPause();
     releasePlayer();
-
-    //mExoPlayer.setPlayWhenReady(false);
-    //mediaSession.setActive(false);
   }
 
   @Override
@@ -301,7 +298,10 @@ public class IngredientStepDetailFragment extends Fragment
   }
 
   private void initializeMediaSession() {
-    mediaSession = new MediaSessionCompat(getContext(), TAG);
+    if(mediaSession!= null) {
+      mediaSession.setActive(false);
+    }
+      mediaSession = new MediaSessionCompat(getContext(), TAG);
     mediaSession.setFlags(
         MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS |
             MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS);
