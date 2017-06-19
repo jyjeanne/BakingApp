@@ -6,9 +6,12 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.media.session.MediaSessionCompat;
+import android.support.v4.media.session.PlaybackStateCompat;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -68,6 +71,8 @@ public class IngredientStepDetailFragment extends Fragment
   private int currentWindow;
   private long playbackPosition;
   private TrackSelector trackSelector;
+  private PlaybackStateCompat.Builder stateBuilder;
+  private static MediaSessionCompat mediaSession;
   private RecyclerView mIngredientsRecyclerView;
   private SimpleExoPlayerView mPlayerView;
   private SimpleExoPlayer mExoPlayer;
@@ -132,6 +137,9 @@ public class IngredientStepDetailFragment extends Fragment
     } else {
       showStepsForPhone();
     }
+    if(mediaSession != null) {
+      mediaSession.setActive(true);
+    }
   }
 
   private void showIngredients() {
@@ -164,10 +172,14 @@ public class IngredientStepDetailFragment extends Fragment
     mPlayerView.requestFocus();
     String videoUrl = mSteps.get(index).getVideoUrl();
     String thumbNailUrl = mSteps.get(index).getThumbnailUrl();
-    if (!videoUrl.isEmpty()) {
+    if (!TextUtils.isEmpty(videoUrl)) {
+      restExoPlayer(0, false);
       initializePlayer(Uri.parse(videoUrl));
+      initializeMediaSession();
     } else if (!thumbNailUrl.isEmpty()) {
+      restExoPlayer(0, false);
       initializePlayer(Uri.parse(thumbNailUrl));
+      initializeMediaSession();
     } else {
       mPlayerView.setVisibility(View.GONE);
     }
@@ -220,18 +232,31 @@ public class IngredientStepDetailFragment extends Fragment
         new DefaultExtractorsFactory(), null, null);
 
     mExoPlayer.prepare(mediaSource);
+    restExoPlayer(mPosition, false);
+  }
+
+  private void restExoPlayer(int position, boolean playWhenReady) {
+    this.mPosition = position;
+    if(mExoPlayer != null) {
+      mExoPlayer.seekTo(position);
+      mExoPlayer.setPlayWhenReady(playWhenReady);
+    }
   }
 
   @Override
   public void onDestroy() {
     super.onDestroy();
     releasePlayer();
+    //mediaSession.setActive(false);
   }
 
   @Override
   public void onPause() {
     super.onPause();
     releasePlayer();
+
+    //mExoPlayer.setPlayWhenReady(false);
+    //mediaSession.setActive(false);
   }
 
   @Override
@@ -245,6 +270,9 @@ public class IngredientStepDetailFragment extends Fragment
       mExoPlayer.stop();
       mExoPlayer.release();
       mExoPlayer = null;
+    }
+    if(mediaSession != null) {
+      mediaSession.setActive(false);
     }
   }
 
@@ -272,6 +300,23 @@ public class IngredientStepDetailFragment extends Fragment
     }
   }
 
+  private void initializeMediaSession() {
+    mediaSession = new MediaSessionCompat(getContext(), TAG);
+    mediaSession.setFlags(
+        MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS |
+            MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS);
+    mediaSession.setMediaButtonReceiver(null);
+    stateBuilder = new PlaybackStateCompat.Builder()
+        .setActions(
+            PlaybackStateCompat.ACTION_PLAY |
+                PlaybackStateCompat.ACTION_PAUSE |
+                PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS |
+                PlaybackStateCompat.ACTION_PLAY_PAUSE);
+    mediaSession.setPlaybackState(stateBuilder.build());
+    mediaSession.setCallback(new MySessionCallback());
+    mediaSession.setActive(true);
+  }
+
   @SuppressLint("InlinedApi")
   private void hideSystemUi() {
     View decorView = getActivity().getWindow().getDecorView();
@@ -291,6 +336,24 @@ public class IngredientStepDetailFragment extends Fragment
             | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
             | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
 
+  }
+
+
+  private class MySessionCallback extends MediaSessionCompat.Callback {
+    @Override
+    public void onPlay() {
+      mExoPlayer.setPlayWhenReady(true);
+    }
+
+    @Override
+    public void onPause() {
+      mExoPlayer.setPlayWhenReady(false);
+    }
+
+    @Override
+    public void onSkipToPrevious() {
+      restExoPlayer(0, false);
+    }
   }
 
   @Override
@@ -323,9 +386,15 @@ public class IngredientStepDetailFragment extends Fragment
   @Override
   public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
     if ((playbackState == ExoPlayer.STATE_READY) && playWhenReady && getActivity() != null ) {
-      Toast.makeText(getActivity(), "Playing", Toast.LENGTH_LONG).show();
+      Toast.makeText(getActivity(), R.string.toast_player_playing, Toast.LENGTH_LONG).show();
     } else if ((playbackState == ExoPlayer.STATE_READY)) {
 
+    }
+    if (playbackState == PlaybackStateCompat.STATE_PLAYING && mExoPlayer != null) {
+      mPosition =(int)mExoPlayer.getCurrentPosition();
+    }
+    if(mediaSession != null && stateBuilder != null) {
+      mediaSession.setPlaybackState(stateBuilder.build());
     }
   }
 

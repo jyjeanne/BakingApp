@@ -43,5 +43,6 @@
   <string name="recipe_thumbnail">Recipe thumbnail</string>
   <string name="recipe_image">Recipe Image</string>
   <string name="application_name">Baking App</string>
+  <string name="toast_player_playing">Playing</string>
 
 </resources>
