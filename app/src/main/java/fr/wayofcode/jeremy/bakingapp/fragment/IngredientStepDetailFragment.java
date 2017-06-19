@@ -54,7 +54,7 @@ import static fr.wayofcode.jeremy.bakingapp.adapter.IngredientStepAdapter.STEPS;
 
 /**
  *
- * create an instance of this fragment.
+ * IngredientStepDetailFragment test.
  */
 public class IngredientStepDetailFragment extends Fragment
     implements View.OnClickListener, ExoPlayer.EventListener {
