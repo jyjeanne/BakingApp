@@ -175,7 +175,7 @@ public class IngredientStepDetailFragment extends Fragment
     if (!TextUtils.isEmpty(videoUrl)) {
       initializePlayer(Uri.parse(videoUrl));
       initializeMediaSession();
-    } else if (!thumbNailUrl.isEmpty()) {
+    } else if (!TextUtils.isEmpty(thumbNailUrl)) {
       initializePlayer(Uri.parse(thumbNailUrl));
       initializeMediaSession();
     } else {
@@ -250,11 +250,11 @@ public class IngredientStepDetailFragment extends Fragment
     releasePlayer();
   }
 
-  @Override
-  public void onPause() {
-    super.onPause();
-    releasePlayer();
-  }
+  //@Override
+  //public void onPause() {
+  //  super.onPause();
+  //  releasePlayer();
+  //}
 
   @Override
   public void onStop() {
