@@ -5,6 +5,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.app.Fragment;
 import android.support.annotation.Nullable;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -29,6 +30,7 @@ public class MasterListFragment extends Fragment {
   @BindView(R.id.rv_ingredients_steps) RecyclerView mIngredientStepRecyclerView;
   private Recipe mRecipe;
   private IngredientStepAdapter mIngredientStepAdapter;
+  private LinearLayoutManager mLinearLayoutManager;
   private IngredientStepAdapter.OnIngredientStepListener mClickListener;
 
   public MasterListFragment() {
@@ -55,6 +57,9 @@ public class MasterListFragment extends Fragment {
     ButterKnife.bind(this, rootView);
     mRecipe = getActivity().getIntent().getParcelableExtra(RECIPE);
     mIngredientStepAdapter = new IngredientStepAdapter(getContext(), mRecipe, mClickListener);
+    mLinearLayoutManager = new LinearLayoutManager(getActivity());
+    mLinearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+    mIngredientStepRecyclerView.setLayoutManager(mLinearLayoutManager);
     mIngredientStepRecyclerView.setAdapter(mIngredientStepAdapter);
     return rootView;
   }

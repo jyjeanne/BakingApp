@@ -78,6 +78,7 @@ public class IngredientStepDetailFragment extends Fragment
   private PlaybackStateCompat.Builder stateBuilder;
   private static MediaSessionCompat mediaSession;
   private RecyclerView mIngredientsRecyclerView;
+  private LinearLayoutManager mLinearLayoutManager;
   private SimpleExoPlayerView mPlayerView;
   private SimpleExoPlayer mExoPlayer;
   private ImageView mThumbnail;
@@ -112,6 +113,8 @@ public class IngredientStepDetailFragment extends Fragment
     View rootView = inflater.inflate(R.layout.fragment_ingredient_step_detail, container, false);
 
     mIngredientsRecyclerView = (RecyclerView) rootView.findViewById(R.id.rv_ingredients);
+    mLinearLayoutManager = new LinearLayoutManager(getActivity());
+    mLinearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
     mStepDetail = rootView.findViewById(R.id.step_detail_view);
     mThumbnail = (ImageView) rootView.findViewById(R.id.tv_thumbnail);
     mDescription = (TextView) rootView.findViewById(R.id.tv_description);
@@ -157,6 +160,7 @@ public class IngredientStepDetailFragment extends Fragment
         LinearLayoutManager.VERTICAL);
     mIngredientsRecyclerView.addItemDecoration(dividerItemDecoration);
     mIngredientsRecyclerView.setHasFixedSize(true);
+    mIngredientsRecyclerView.setLayoutManager(mLinearLayoutManager);
     mIngredientsRecyclerView.setAdapter(adapter);
   }
 

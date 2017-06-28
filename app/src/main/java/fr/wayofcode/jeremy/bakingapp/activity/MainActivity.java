@@ -2,6 +2,7 @@ package fr.wayofcode.jeremy.bakingapp.activity;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.ProgressBar;
@@ -28,6 +29,7 @@ public class MainActivity extends AppCompatActivity {
 
   @BindView(R.id.rv_recipe) RecyclerView mRecipeRecyclerView;
   @BindView(R.id.progressBar) ProgressBar mLoadingIndicator;
+  private LinearLayoutManager mLinearLayoutManager;
   private ArrayList<Recipe> mRecipesList;
 
   @Override
@@ -67,6 +69,10 @@ public class MainActivity extends AppCompatActivity {
   private void loadData() {
     mLoadingIndicator.setVisibility(View.INVISIBLE);
     RecipeAdapter recipeAdapter = new RecipeAdapter(MainActivity.this, mRecipesList);
+    mRecipeRecyclerView.setHasFixedSize(true);
+    mLinearLayoutManager = new LinearLayoutManager(this);
+    mLinearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+    mRecipeRecyclerView.setLayoutManager(mLinearLayoutManager);
     mRecipeRecyclerView.setAdapter(recipeAdapter);
   }
 
