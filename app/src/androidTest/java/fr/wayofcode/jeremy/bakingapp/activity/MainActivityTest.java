@@ -78,40 +78,10 @@ public class MainActivityTest {
         isDisplayed()));
     recyclerView2.perform(actionOnItemAtPosition(1, click()));
 
-    // Added a sleep statement to match the app's execution delay.
-    // The recommended way to handle such scenarios is to use Espresso idling resources:
-    // https://google.github.io/android-testing-support-library/docs/espresso/idling-resource/index.html
-    try {
-      Thread.sleep(1000);
-    } catch (InterruptedException e) {
-      e.printStackTrace();
-    }
-
-    ViewInteraction appCompatImageButton =
-        onView(allOf(withId(R.id.exo_play), withContentDescription("Play"), isDisplayed()));
-    appCompatImageButton.perform(click());
-
-    // Added a sleep statement to match the app's execution delay.
-    // The recommended way to handle such scenarios is to use Espresso idling resources:
-    // https://google.github.io/android-testing-support-library/docs/espresso/idling-resource/index.html
-    try {
-      Thread.sleep(5000);
-    } catch (InterruptedException e) {
-      e.printStackTrace();
-    }
-
-    ViewInteraction button = onView(allOf(withId(R.id.bt_next), childAtPosition(
-        childAtPosition(IsInstanceOf.<View>instanceOf(android.widget.LinearLayout.class), 2), 1),
-        isDisplayed()));
-    button.check(matches(isDisplayed()));
-
     ViewInteraction appCompatButton = onView(allOf(withId(R.id.bt_next), withText("Next")));
     appCompatButton.perform(scrollTo(), click());
 
-    ViewInteraction button2 = onView(allOf(withId(R.id.bt_previous), childAtPosition(
-        childAtPosition(IsInstanceOf.<View>instanceOf(android.widget.LinearLayout.class), 1), 0),
-        isDisplayed()));
-    button2.check(matches(isDisplayed()));
+
   }
 
 

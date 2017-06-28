@@ -19,7 +19,7 @@
         app:resize_mode="fixed_width" />
 
     <ImageView
-        android:id="@+id/iv_thumbnail"
+        android:id="@+id/tv_thumbnail"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:contentDescription="@string/recipe_thumbnail"

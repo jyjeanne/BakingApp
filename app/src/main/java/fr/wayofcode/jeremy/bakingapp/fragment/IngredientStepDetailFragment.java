@@ -17,6 +17,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.google.android.exoplayer2.DefaultLoadControl;
@@ -44,6 +45,7 @@ import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
 import com.google.android.exoplayer2.util.Util;
+import com.squareup.picasso.Picasso;
 import fr.wayofcode.jeremy.bakingapp.R;
 import fr.wayofcode.jeremy.bakingapp.adapter.IngredientListAdapter;
 import fr.wayofcode.jeremy.bakingapp.data.Ingredient;
@@ -66,6 +68,8 @@ public class IngredientStepDetailFragment extends Fragment
   public static final String CURRENT_WINDOW_INDEX = "current_window_index";
   public static final String PLAYBACK_POSITION = "playback_position";
   private static final DefaultBandwidthMeter BANDWIDTH_METER = new DefaultBandwidthMeter();
+  private final String[] pictureFileExtensions =  new String[] {"jpg", "png", "gif","jpeg"};
+
   private final String TAG = IngredientStepDetailFragment.class.getSimpleName();
   private boolean autoPlay = false;
   private int currentWindow;
@@ -76,6 +80,7 @@ public class IngredientStepDetailFragment extends Fragment
   private RecyclerView mIngredientsRecyclerView;
   private SimpleExoPlayerView mPlayerView;
   private SimpleExoPlayer mExoPlayer;
+  private ImageView mThumbnail;
   private TextView mDescription;
   private Button mPrevious;
   private Button mNext;
@@ -108,6 +113,7 @@ public class IngredientStepDetailFragment extends Fragment
 
     mIngredientsRecyclerView = (RecyclerView) rootView.findViewById(R.id.rv_ingredients);
     mStepDetail = rootView.findViewById(R.id.step_detail_view);
+    mThumbnail = (ImageView) rootView.findViewById(R.id.tv_thumbnail);
     mDescription = (TextView) rootView.findViewById(R.id.tv_description);
     mPlayerView = (SimpleExoPlayerView) rootView.findViewById(R.id.sepv_step_video);
     mPrevious = (Button) rootView.findViewById(R.id.bt_previous);
@@ -160,10 +166,29 @@ public class IngredientStepDetailFragment extends Fragment
     mStepDetail.setVisibility(View.VISIBLE);
     mPlayerView.setVisibility(View.VISIBLE);
     mDescription.setVisibility(View.VISIBLE);
+    mThumbnail.setVisibility(View.VISIBLE);
     mSteps = getArguments().getParcelableArrayList(STEPS);
     assert mSteps != null;
     mDescription.setText(mSteps.get(mIndex).getDescription());
+
+    if(checkPictureUri(mSteps.get(mIndex).getThumbnailUrl())) {
+      Picasso.with(getActivity().getApplicationContext())
+          .load(mSteps.get(mIndex).getThumbnailUrl())
+          .into(mThumbnail);
+    }
     playStepVideo(mIndex);
+  }
+
+  public boolean checkPictureUri(String pictureUri)
+  {
+    if(!TextUtils.isEmpty(pictureUri)) {
+    for (String extension : pictureFileExtensions) {
+      if (pictureUri.toLowerCase().endsWith(extension)) {
+        return true;
+      }
+    }
+  }
+    return false;
   }
 
 
@@ -176,6 +201,11 @@ public class IngredientStepDetailFragment extends Fragment
       initializePlayer(Uri.parse(videoUrl));
       initializeMediaSession();
     } else if (!TextUtils.isEmpty(thumbNailUrl)) {
+
+      Picasso.with(getActivity().getApplicationContext())
+          .load(mSteps.get(mIndex).getThumbnailUrl())
+          .into(mThumbnail);
+
       initializePlayer(Uri.parse(thumbNailUrl));
       initializeMediaSession();
     } else {
@@ -250,11 +280,11 @@ public class IngredientStepDetailFragment extends Fragment
     releasePlayer();
   }
 
-  //@Override
-  //public void onPause() {
-  //  super.onPause();
-  //  releasePlayer();
-  //}
+  @Override
+  public void onPause() {
+    super.onPause();
+    releasePlayer();
+  }
 
   @Override
   public void onStop() {
@@ -280,7 +310,12 @@ public class IngredientStepDetailFragment extends Fragment
         if (mIndex < mSteps.size() - 1) {
           int index = ++mIndex;
           mDescription.setText(mSteps.get(index).getDescription());
-          playStepVideo(index);
+          if(!TextUtils.isEmpty(mSteps.get(index).getThumbnailUrl())) {
+            Picasso.with(getActivity().getApplicationContext())
+                .load(mSteps.get(index).getThumbnailUrl())
+                .into(mThumbnail);
+          }
+            playStepVideo(index);
         } else {
           Toast.makeText(getActivity(), R.string.end_of_steps, Toast.LENGTH_LONG).show();
         }
@@ -289,6 +324,11 @@ public class IngredientStepDetailFragment extends Fragment
         if (mIndex > 0) {
           int index = --mIndex;
           mDescription.setText(mSteps.get(index).getDescription());
+          if(!TextUtils.isEmpty(mSteps.get(index).getThumbnailUrl())) {
+            Picasso.with(getActivity().getApplicationContext())
+                .load(mSteps.get(index).getThumbnailUrl())
+                .into(mThumbnail);
+          }
           playStepVideo(index);
         } else {
           Toast.makeText(getActivity(), R.string.start_of_steps, Toast.LENGTH_LONG).show();
